@@ -1,5 +1,6 @@
 import configparser
 import time
+from prompt_toolkit import PromptSession
 import openai
 from openai.error import RateLimitError
 import typer
@@ -23,7 +24,8 @@ app = typer.Typer()
 model_name = config.get("general", "default_model")
 
 def prompt_user(question: str):
-    return input(question)
+    session = PromptSession()
+    return session.prompt(question)
 
 def is_user_satisfied():
     while True:
@@ -50,7 +52,7 @@ def get_response(messages):
                 retry_delay *= 2
             else:
                 print("Max retries reached. Exiting.")
-                raise
+                raise typer.Abort()
 
 def read_file_content(file_path: str):
     try:
@@ -59,22 +61,24 @@ def read_file_content(file_path: str):
         return content
     except FileNotFoundError:
         print(f"File '{file_path}' not found.")
-        return None
+        raise typer.Abort()
 
 @app.command()
 def ask(file_path: str = None):
     messages = []
     satisfied = False
+    file_content = None
+
+    if file_path:
+        # Convert the relative path to an absolute path if provided
+        file_path = os.path.abspath(file_path)
+        file_content = read_file_content(file_path)
 
     while not satisfied:
         question = prompt_user("Please enter your question: ")
 
-        if file_path:
-            # Convert the relative path to an absolute path if provided
-            file_path = os.path.abspath(file_path)
-            file_content = read_file_content(file_path)
-            if file_content:
-                question += f"\n {file_content}"
+        if file_content:
+            question += f"\n {file_content}"
 
         messages.append({"role": "user", "content": question})
 

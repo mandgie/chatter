@@ -42,7 +42,7 @@ Chatter is a simple command-line tool that allows you to have a conversation usi
    OPENAI_API_KEY=your_openai_api_key
    ```
 
-6. Modify the config file by choosing model and path to your python executable. The default config file is located at `config.ini`.
+6. Modify the config file by choosing model and path to your python executable, that would be the path to your virtual env. The config file is located at `config.ini`.
 
 ## Usage
 

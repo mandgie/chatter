@@ -62,6 +62,22 @@ Once you've asked a question, the script will return an answer from GPT. You can
 
 To exit the script, simply input "yes" when asked if you're satisfied with the answer, or press `CTRL+C`.
 
+### Setting up a symlink on macOS
+
+To create a symlink to execute the CLI with the word "chatter" on macOS, follow the steps below:
+
+1. Run the following command to create a symlink called "chatter":
+
+   ```
+   ln -s ./launcher.sh /usr/local/bin/chatter
+   ```
+
+2. Now you can start the CLI anywhere by using the word "chatter".
+
+   ```
+   chatter
+   ```
+
 ## Troubleshooting
 
 If you encounter any rate-limiting issues, the script will automatically retry until the maximum number of retries is reached (default is 5). If the maximum number of retries is reached, the script will exit with an error message.

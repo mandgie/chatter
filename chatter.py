@@ -3,7 +3,9 @@ import time
 from prompt_toolkit import PromptSession
 import openai
 from openai.error import RateLimitError
+from rich import print as rprint
 import typer
+from typing import Optional
 from dotenv import load_dotenv
 import os
 import sys
@@ -35,7 +37,7 @@ def is_user_satisfied():
         else:
             print("Invalid input. Please enter 'yes' or 'no'.")
 
-def get_response(messages):
+def get_response(messages, model_name=model_name):
     max_retries = 5
     retry_delay = 1
 
@@ -64,7 +66,7 @@ def read_file_content(file_path: str):
         raise typer.Abort()
 
 @app.command()
-def ask(file_path: str = None):
+def ask(file_path: str = None, model: str = typer.Option(None, help="Name of the GPT model to use")):
     messages = []
     satisfied = False
     file_content = None
@@ -82,10 +84,14 @@ def ask(file_path: str = None):
 
         messages.append({"role": "user", "content": question})
 
-        response = get_response(messages)
+        if model:
+            response = get_response(messages, model)
+        else:
+            response = get_response(messages)
 
         answer = response['choices'][0]['message']['content']
-        typer.echo(answer)
+        rprint("[bold green]ASSISTANT:[/bold green]")
+        rprint(answer)
 
         messages.append({"role": "assistant", "content": answer})
 

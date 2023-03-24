@@ -5,10 +5,9 @@ import openai
 from openai.error import RateLimitError
 from rich import print as rprint
 import typer
-from typing import Optional
+from typing import Optional, List
 from dotenv import load_dotenv
 import os
-import sys
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 dotenv_path = os.path.join(script_dir, ".env")
@@ -66,21 +65,22 @@ def read_file_content(file_path: str):
         raise typer.Abort()
 
 @app.command()
-def ask(file_path: str = None, model: str = typer.Option(None, help="Name of the GPT model to use")):
+def ask(file_path: List[str] = typer.Option((), help="One or more file paths to provide as context"), model: str = typer.Option(None, help="Name of the GPT model to use")):
     messages = []
     satisfied = False
-    file_content = None
+    file_contents = []
 
-    if file_path:
-        # Convert the relative path to an absolute path if provided
-        file_path = os.path.abspath(file_path)
-        file_content = read_file_content(file_path)
+    for file in file_path:
+        file = os.path.abspath(file)
+        file_name = os.path.basename(file)
+        file_content = read_file_content(file)
+        file_contents.append((file_name, file_content))
 
     while not satisfied:
         question = prompt_user("Please enter your question: ")
 
-        if file_content:
-            question += f"\n {file_content}"
+        for file_name, file_content in file_contents:
+            question += f"\n{file_name}: \n{file_content}"
 
         messages.append({"role": "user", "content": question})
 

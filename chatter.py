@@ -1,13 +1,15 @@
 import configparser
 import time
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import FormattedText
 import openai
-from openai.error import RateLimitError
+from openai.error import RateLimitError, InvalidRequestError
 from rich import print as rprint
 import typer
 from typing import Optional, List
 from dotenv import load_dotenv
 import os
+from rich.prompt import Prompt
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 dotenv_path = os.path.join(script_dir, ".env")
@@ -30,7 +32,7 @@ def prompt_user(question: str):
 
 def is_user_satisfied():
     while True:
-        response = prompt_user("Are you satisfied with the answer? (yes/no): ").lower()
+        response = prompt_user(FormattedText([("fg:green", "Are you satisfied with the answer? (yes/no): ")])).lower()
         if response in ["yes", "no"]:
             return response == "yes"
         else:
@@ -45,7 +47,7 @@ def get_response(messages, model_name=model_name):
             return openai.ChatCompletion.create(
                 model=model_name,
                 messages=messages
-            ) 
+            )
         except RateLimitError:
             if attempt < max_retries - 1:
                 print(f"Rate limit exceeded, retrying in {retry_delay} seconds...")
@@ -54,6 +56,10 @@ def get_response(messages, model_name=model_name):
             else:
                 print("Max retries reached. Exiting.")
                 raise typer.Abort()
+        except InvalidRequestError as e:
+            print("Invalid request error: ", e)
+            print("This might be due to exceeding the token limitation.")
+            raise typer.Abort()
 
 def read_file_content(file_path: str):
     try:

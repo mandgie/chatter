@@ -65,7 +65,9 @@ def read_file_content(file_path: str):
         raise typer.Abort()
 
 @app.command()
-def ask(file_path: List[str] = typer.Option((), help="One or more file paths to provide as context"), model: str = typer.Option(None, help="Name of the GPT model to use")):
+def ask(file_path: List[str] = typer.Option((), help="One or more file paths to provide as context"), 
+        model: str = typer.Option(None, help="Name of the GPT model to use"),
+        context_string: str = typer.Option('', help="A string to provide as context")):
     messages = []
     satisfied = False
     file_contents = []
@@ -81,6 +83,9 @@ def ask(file_path: List[str] = typer.Option((), help="One or more file paths to 
 
         for file_name, file_content in file_contents:
             question += f"\n{file_name}: \n{file_content}"
+
+        if context_string:
+            question += f"\nContext: \n{context_string}"
 
         messages.append({"role": "user", "content": question})
 

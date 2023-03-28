@@ -58,6 +58,18 @@ After running the script, you'll be prompted to ask your question. If you want t
 python chatter.py --file_path path/to/your/context_file.txt
 ```
 
+Chatter now supports providing additional context through the `context_string` optional argument. This argument is helpful when you want to provide extra information to help GPT generate accurate answers without needing to read it from a file.
+
+For example:
+
+```
+python chatter.py --context-string "Your context string here"
+```
+  
+```
+python chatter.py --context-string "$(ls)"
+```
+
 Once you've asked a question, the script will return an answer from GPT. You can continue asking questions until you're satisfied with the answer.
 
 To exit the script, simply input "yes" when asked if you're satisfied with the answer, or press `CTRL+C`.
